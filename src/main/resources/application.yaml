@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/iam_keycloak
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  security:
+    oauth2:
+      resource server:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/tien #den tu realms nao // cai base cua khong gian realm trong keycloak
+          jwk-set-uri: ${spring.security.oauth2.resource server.jwt.issuer-uri}/protocol/openid-connect/certs #biet public key de verify
+iam:
+  useKeycloak: true
+  keycloak:
+    realm: tien
+    auth-server-url: http://localhost:8180
+    client-id: tien_app
+    client-secret: JKeoBFBJ7B2B8NvNTnUHfhM1kaZFua2s
