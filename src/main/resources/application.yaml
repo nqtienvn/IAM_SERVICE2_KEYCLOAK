@@ -15,9 +15,14 @@ spring:
           issuer-uri: http://localhost:8180/realms/tien #den tu realms nao // cai base cua khong gian realm trong keycloak
           jwk-set-uri: ${spring.security.oauth2.resource server.jwt.issuer-uri}/protocol/openid-connect/certs #biet public key de verify
 iam:
-  useKeycloak: true
+  use-kecloak: true
   keycloak:
     realm: tien
     auth-server-url: http://localhost:8180
     client-id: tien_app
     client-secret: JKeoBFBJ7B2B8NvNTnUHfhM1kaZFua2s
+
+jwt:
+  secret: "NqoOR/41C1WWFKRKKX8+/E7V8VBepn+/pmFwfKP0GDOuVuwgtBslCeu3swN0KGp8nPYv/wEiLrc2z0Qra0uptOtJAFVOS+7Vju2sHbUae1U="
+  expiration: 3600000
+

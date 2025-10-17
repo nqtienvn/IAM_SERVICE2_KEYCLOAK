@@ -1,14 +1,16 @@
 package com.tien.iam_service2_keycloak.service.impl;
 
+import com.tien.iam_service2_keycloak.dto.request.CreateUserRequest;
 import com.tien.iam_service2_keycloak.dto.request.RegisterRequest;
 import com.tien.iam_service2_keycloak.dto.request.UpdateRequest;
-import com.tien.iam_service2_keycloak.dto.response.CreateUserResponse;
 import com.tien.iam_service2_keycloak.dto.response.RegisterResponse;
 import com.tien.iam_service2_keycloak.entity.User;
 import com.tien.iam_service2_keycloak.exception.AppException;
 import com.tien.iam_service2_keycloak.exception.ErrorCode;
 import com.tien.iam_service2_keycloak.mapper.UserMapper;
+import com.tien.iam_service2_keycloak.repository.RoleRepository;
 import com.tien.iam_service2_keycloak.repository.UserRepository;
+import com.tien.iam_service2_keycloak.role_permission_enum.Role_System;
 import com.tien.iam_service2_keycloak.service.KeycloakService;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class KeyCloakServiceImplements implements KeycloakService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RestTemplate restTemplate;
+    private final RoleRepository roleRepository;
     @Value("${iam.keycloak.realm}")
     private String realm;
 
@@ -49,6 +52,7 @@ public class KeyCloakServiceImplements implements KeycloakService {
         }
         User userSql = userMapper.toUser(registerRequest);
         userSql.setEnabled(true);
+        userSql.setRoles(Set.of(roleRepository.findByName(Role_System.USER.toString()).orElseThrow()));
         return userMapper.toRegisterResponse(userRepository.save(userSql));
     }
 
@@ -135,21 +139,21 @@ public class KeyCloakServiceImplements implements KeycloakService {
     }
 
     @Override
-    public String createUser(RegisterRequest registerRequest) {
+    public String createUser(CreateUserRequest createUserRequest) {
         String url = keycloakServerUrl + "/admin/realms/" + realm + "/users";
         HttpHeaders header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
         String adminToken = getAdminToken();
         header.setBearerAuth(adminToken);
         Map<String, Object> dataRequest = new HashMap<>();
-        dataRequest.put("username", registerRequest.getUsername());
-        dataRequest.put("email", registerRequest.getEmail());
-        dataRequest.put("firstName", registerRequest.getFirstName());
-        dataRequest.put("lastName", registerRequest.getLastName());
+        dataRequest.put("username", createUserRequest.getUsername());
+        dataRequest.put("email", createUserRequest.getEmail());
+        dataRequest.put("firstName", createUserRequest.getFirstName());
+        dataRequest.put("lastName", createUserRequest.getLastName());
         dataRequest.put("enabled", true);
         Map<String, Object> credential = new HashMap<>();
         credential.put("type", "password");
-        credential.put("value", registerRequest.getPassword());
+        credential.put("value", createUserRequest.getPassword());
         credential.put("temporary", false);
         dataRequest.put("credentials", List.of(credential));
         log.info("infor_requets_create_user: {}", dataRequest);
@@ -195,6 +199,32 @@ public class KeyCloakServiceImplements implements KeycloakService {
         header.setBearerAuth(adminToken);
         Map<String, Object> dataRequest = new HashMap<>();
         dataRequest.put("enabled", false);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(dataRequest, header);
+        restTemplate.put(url, request, String.class);
+    }
+
+    @Override
+    public void blockUser(String keycloakUserId) {
+        String url = keycloakServerUrl + "/admin/realms/" + realm + "/users/" + keycloakUserId;
+        HttpHeaders header = new HttpHeaders();
+        header.setContentType(MediaType.APPLICATION_JSON);
+        String adminToken = getAdminToken();
+        header.setBearerAuth(adminToken);
+        Map<String, Object> dataRequest = new HashMap<>();
+        dataRequest.put("enabled", false);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(dataRequest, header);
+        restTemplate.put(url, request, String.class);
+    }
+
+    @Override
+    public void unblockUser(String keycloakUserId) {
+        String url = keycloakServerUrl + "/admin/realms/" + realm + "/users/" + keycloakUserId;
+        HttpHeaders header = new HttpHeaders();
+        header.setContentType(MediaType.APPLICATION_JSON);
+        String adminToken = getAdminToken();
+        header.setBearerAuth(adminToken);
+        Map<String, Object> dataRequest = new HashMap<>();
+        dataRequest.put("enabled", true);
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(dataRequest, header);
         restTemplate.put(url, request, String.class);
     }
