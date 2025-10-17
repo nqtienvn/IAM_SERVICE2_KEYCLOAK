@@ -23,6 +23,7 @@ public class User extends Auditor{
     private String email;
     private String firstName;
     private String lastName;
+    private String pass;
     private String keycloakUserId;
     @Column(nullable = false)
     private Boolean enabled;
@@ -31,4 +32,5 @@ public class User extends Auditor{
     @Enumerated(EnumType.STRING)
     @ManyToMany(fetch = FetchType.EAGER)
     Set<Role> roles;
+
 }

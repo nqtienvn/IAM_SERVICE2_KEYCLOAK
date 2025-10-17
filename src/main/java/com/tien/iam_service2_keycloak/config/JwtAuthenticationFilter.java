@@ -12,6 +12,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,7 @@ import java.io.IOException;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@ConditionalOnProperty(prefix = "iam", name = "use-keycloak", havingValue = "false", matchIfMissing = true)
 @RequiredArgsConstructor
 @Slf4j
 //OncePerRequestFilter cho biết là bọo lọc này chỉ được thực hiẹn 1 lần

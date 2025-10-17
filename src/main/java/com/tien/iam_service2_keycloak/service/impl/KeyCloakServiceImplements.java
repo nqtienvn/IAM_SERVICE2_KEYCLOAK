@@ -153,7 +153,7 @@ public class KeyCloakServiceImplements implements KeycloakService {
         dataRequest.put("enabled", true);
         Map<String, Object> credential = new HashMap<>();
         credential.put("type", "password");
-        credential.put("value", createUserRequest.getPassword());
+        credential.put("value", createUserRequest.getPass());
         credential.put("temporary", false);
         dataRequest.put("credentials", List.of(credential));
         log.info("infor_requets_create_user: {}", dataRequest);

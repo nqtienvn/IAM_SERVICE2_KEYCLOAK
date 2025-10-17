@@ -12,7 +12,7 @@ import java.util.Set;
 public class CreateUserRequest {
     private String username;
     private String email;
-    private String password;
+    private String pass;
     private String firstName;
     private String lastName;
     @Nullable

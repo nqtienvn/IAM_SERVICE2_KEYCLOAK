@@ -17,10 +17,12 @@ import com.tien.iam_service2_keycloak.service.KeycloakService;
 import com.tien.iam_service2_keycloak.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -36,45 +38,84 @@ public class UserServiceImplements implements UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    @Value("${iam.use-keycloak:false}")
+    private boolean useKeycloak;
 
     @Override
     public CreateUserResponse createUser(CreateUserRequest createUserRequest) {
-        String keycloakUserId = keycloakService.createUser(createUserRequest);
-        log.info("keycloakUserId:{}", keycloakUserId);
-        User user = userMapper.toUser(createUserRequest);
-        Set<String> roleName = createUserRequest.getRoleName();
-        Set<Role> roles = new HashSet<>();
-        if (roleName == null) {
-            roles.add(roleRepository.findByName(Role_System.USER.toString()).orElseThrow());
+        if (useKeycloak) {
+            String keycloakUserId = keycloakService.createUser(createUserRequest);
+            log.info("keycloakUserId:{}", keycloakUserId);
+            User user = userMapper.toUser(createUserRequest);
+            Set<String> roleName = createUserRequest.getRoleName();
+            Set<Role> roles = new HashSet<>();
+            if (roleName == null) {
+                roles.add(roleRepository.findByName(Role_System.USER.toString()).orElseThrow());
+            } else {
+                roleName.forEach(role -> roles.add(roleRepository.findByName(role).orElseThrow()));
+            }
+            user.setRoles(roles);
+            user.setKeycloakUserId(keycloakUserId);
+            user.setDeleted(false);
+            user.setEnabled(true);
+            return userMapper.toCreateUserResponse(userRepository.save(user));
+
         } else {
-            roleName.forEach(role -> roles.add(roleRepository.findByName(role).orElseThrow()));
+            User user = userMapper.toUser(createUserRequest);
+            Set<String> roleName = createUserRequest.getRoleName();
+            Set<Role> roles = new HashSet<>();
+            if (roleName == null) {
+                roles.add(roleRepository.findByName(Role_System.USER.toString()).orElseThrow());
+            } else {
+                roleName.forEach(role -> roles.add(roleRepository.findByName(role).orElseThrow()));
+            }
+            user.setPass(passwordEncoder.encode(createUserRequest.getPass()));
+            user.setRoles(roles);
+            user.setDeleted(false);
+            user.setEnabled(true);
+            return userMapper.toCreateUserResponse(userRepository.save(user));
         }
-        user.setRoles(roles);
-        user.setKeycloakUserId(keycloakUserId);
-        user.setDeleted(false);
-        user.setEnabled(true);
-        return userMapper.toCreateUserResponse(userRepository.save(user));
     }
 
     @Override
     public CreateUserResponse updateUser(UpdateRequest updateRequest, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        String keycloakUserId = user.getKeycloakUserId();
-        keycloakService.updateUser(updateRequest, keycloakUserId);
-        user.setEmail(updateRequest.getEmail());
-        user.setFirstName(updateRequest.getFirstName());
-        user.setLastName(updateRequest.getLastName());
-        User userUpdate = userRepository.save(user);
-        log.info("Inform before update: {}", updateRequest);
-        log.info("Inform after update: {}", user);
-        return userMapper.toCreateUserResponse(userUpdate);
+        if (useKeycloak) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            String keycloakUserId = user.getKeycloakUserId();
+            keycloakService.updateUser(updateRequest, keycloakUserId);
+            user.setEmail(updateRequest.getEmail());
+            user.setFirstName(updateRequest.getFirstName());
+            user.setLastName(updateRequest.getLastName());
+            User userUpdate = userRepository.save(user);
+            log.info("Inform before update: {}", updateRequest);
+            log.info("Inform after update: {}", user);
+            return userMapper.toCreateUserResponse(userUpdate);
+        } else {
+            User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            user.setEmail(updateRequest.getEmail());
+            user.setFirstName(updateRequest.getFirstName());
+            user.setLastName(updateRequest.getLastName());
+            User userUpdate = userRepository.save(user);
+            log.info("Inform before update: {}", updateRequest);
+            log.info("Inform after update: {}", user);
+            return userMapper.toCreateUserResponse(userUpdate);
+        }
     }
 
     @Override
     public Boolean deleteUser(Long userId) {
+        if (useKeycloak) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            String keycloakUserId = user.getKeycloakUserId();
+            keycloakService.softDelete(keycloakUserId); //da enable roi nha
+            user.setDeleted(true);
+            user.setEnabled(false);
+            userRepository.save(user);
+            log.info("Inform before delete: {}", user.getUsername());
+            return user.getDeleted();
+        }
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        String keycloakUserId = user.getKeycloakUserId();
-        keycloakService.softDelete(keycloakUserId); //da enable roi nha
         user.setDeleted(true);
         user.setEnabled(false);
         userRepository.save(user);
@@ -84,9 +125,15 @@ public class UserServiceImplements implements UserService {
 
     @Override
     public Boolean blockUser(Long userId) {
+        if (useKeycloak) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            String keycloakUserId = user.getKeycloakUserId();
+            keycloakService.blockUser(keycloakUserId);
+            user.setEnabled(false);
+            userRepository.save(user);
+            return user.getEnabled();
+        }
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        String keycloakUserId = user.getKeycloakUserId();
-        keycloakService.blockUser(keycloakUserId);
         user.setEnabled(false);
         userRepository.save(user);
         return user.getEnabled();
@@ -94,12 +141,21 @@ public class UserServiceImplements implements UserService {
 
     @Override
     public Boolean unBlockUser(Long userId) {
+        if (useKeycloak) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            String keycloakUserId = user.getKeycloakUserId();
+            if (Boolean.TRUE.equals(user.getDeleted())) {
+                return user.getEnabled(); //luon false
+            }
+            keycloakService.unblockUser(keycloakUserId);
+            user.setEnabled(true);
+            userRepository.save(user);
+            return user.getEnabled();
+        }
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        String keycloakUserId = user.getKeycloakUserId();
         if (Boolean.TRUE.equals(user.getDeleted())) {
             return user.getEnabled(); //luon false
         }
-        keycloakService.unblockUser(keycloakUserId);
         user.setEnabled(true);
         userRepository.save(user);
         return user.getEnabled();

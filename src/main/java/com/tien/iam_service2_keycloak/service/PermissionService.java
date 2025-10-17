@@ -3,7 +3,6 @@ package com.tien.iam_service2_keycloak.service;
 
 import com.tien.iam_service2_keycloak.dto.request.AddPermissionForRoleRequest;
 import com.tien.iam_service2_keycloak.dto.request.PermissionRequest;
-import com.tien.iam_service2_keycloak.dto.request.UserRoleRequest;
 import com.tien.iam_service2_keycloak.dto.response.PermissionResponse;
 import com.tien.iam_service2_keycloak.dto.response.RoleResponse;
 import org.springframework.data.domain.Page;

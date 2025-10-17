@@ -4,6 +4,7 @@ package com.tien.iam_service2_keycloak.service.impl;
 import com.tien.iam_service2_keycloak.config.JwtProperties;
 import com.tien.iam_service2_keycloak.exception.AppException;
 import com.tien.iam_service2_keycloak.exception.ErrorCode;
+import com.tien.iam_service2_keycloak.service.BaseRedisV2Service;
 import com.tien.iam_service2_keycloak.service.JwtService;
 import io.jsonwebtoken.*;
 import lombok.AccessLevel;
@@ -29,7 +30,7 @@ import java.util.function.Function;
 public class JwtServiceImpl implements JwtService {
     JwtProperties jwtProperties;
     CustomUserDetailService customerUserDetailService;
-
+    BaseRedisV2Service baseRedisV2Service;
     public Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);
@@ -56,10 +57,10 @@ public class JwtServiceImpl implements JwtService {
     public boolean validateToken(String token, UserDetails useDetails) {
         String email = extractEmail(token);
         String id = extracId(token);
-//        Object accessToken = baseRedisV2Service.get(id);
-//        if (accessToken != null) {
-//            return false;
-//        }
+        Object accessToken = baseRedisV2Service.get(id);
+        if (accessToken != null) {
+            return false;
+        }
         return (email.equals(useDetails.getUsername())) && !isTokenExpired(token);
     }
 
@@ -93,7 +94,7 @@ public class JwtServiceImpl implements JwtService {
             String id = extracId(refreshToken);
             String email = extractEmail(refreshToken);//doan nay la no da ket hop ca validate token roi
             log.info("id: " + id);
-//            log.info("id in redis: " + baseRedisV2Service.get("refreshToken"));
+            log.info("id in redis: " + baseRedisV2Service.get("refreshToken"));
             if (!isTokenExpired(refreshToken) /*&& baseRedisV2Service.get("refreshToken") != null && baseRedisV2Service.get("refreshToken").toString().equals(id)*/) {
                 log.info(generateAccessToken(customerUserDetailService.loadUserByUsername(email)));
                 return generateAccessToken(customerUserDetailService.loadUserByUsername(email));
