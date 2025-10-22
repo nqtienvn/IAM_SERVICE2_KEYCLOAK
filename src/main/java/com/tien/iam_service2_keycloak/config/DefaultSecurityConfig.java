@@ -37,6 +37,7 @@ public class DefaultSecurityConfig {
                                 "/api/auth/refresh-token",
                                 "/api/auth/admin-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users", "/api/roles", "/api/permissions").permitAll()
+                        .requestMatchers("/public/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

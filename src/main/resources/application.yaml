@@ -2,7 +2,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 60282
+      port: 60823
   datasource:
     url: jdbc:mysql://localhost:3306/iam_keycloak
     username: root
@@ -12,6 +12,9 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
   security:
     oauth2:
       resource server:
@@ -30,3 +33,13 @@ jwt:
   secret: "NqoOR/41C1WWFKRKKX8+/E7V8VBepn+/pmFwfKP0GDOuVuwgtBslCeu3swN0KGp8nPYv/wEiLrc2z0Qra0uptOtJAFVOS+7Vju2sHbUae1U="
   expiration: 3600000
 
+open:
+  api:
+    title: "KEYCLOAK_IAM_SERVICE"
+    version: "v1.0.0"
+    description: "manage with keycloak"
+    url: "http://localhost:8081"
+    description-server-url: "server-dev"
+
+server:
+  port: 8081

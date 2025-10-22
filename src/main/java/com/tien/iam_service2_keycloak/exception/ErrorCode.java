@@ -16,6 +16,7 @@ public enum ErrorCode {
      * crud user error: 9
      * DB: 5
      */
+    ERROR_DELETE(9, "user has bean deleted",HttpStatus.BAD_REQUEST),
     ERROR_KEYCLOAK_USER(1, "create user in keycloak fail", HttpStatus.BAD_REQUEST),
     USER_FILTER(3, "user not found in db", HttpStatus.FORBIDDEN),
     ADMIN_TOKEN_NOT_FOUND(3, "not found admin access token", HttpStatus.BAD_REQUEST),

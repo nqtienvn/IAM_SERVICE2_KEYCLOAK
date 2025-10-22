@@ -59,6 +59,7 @@ public class UserServiceImplements implements UserService {
             user.setKeycloakUserId(keycloakUserId);
             user.setDeleted(false);
             user.setEnabled(true);
+            user.setPass(passwordEncoder.encode(createUserRequest.getPass()));
             return userMapper.toCreateUserResponse(userRepository.save(user));
 
         } else {
@@ -80,19 +81,21 @@ public class UserServiceImplements implements UserService {
 
     @Override
     public CreateUserResponse updateUser(UpdateRequest updateRequest, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (Boolean.TRUE.equals(user.getDeleted())) {
+            throw new AppException(ErrorCode.ERROR_DELETE);
+        }
         if (useKeycloak) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
             String keycloakUserId = user.getKeycloakUserId();
             keycloakService.updateUser(updateRequest, keycloakUserId);
             user.setEmail(updateRequest.getEmail());
             user.setFirstName(updateRequest.getFirstName());
             user.setLastName(updateRequest.getLastName());
             User userUpdate = userRepository.save(user);
-            log.info("Inform before update: {}", updateRequest);
-            log.info("Inform after update: {}", user);
+            log.info("Inform before keycloak update: {}", updateRequest);
+            log.info("Inform after keycloak update: {}", user);
             return userMapper.toCreateUserResponse(userUpdate);
         } else {
-            User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
             user.setEmail(updateRequest.getEmail());
             user.setFirstName(updateRequest.getFirstName());
             user.setLastName(updateRequest.getLastName());
@@ -166,17 +169,7 @@ public class UserServiceImplements implements UserService {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> pageUser = userRepository.findAll(pageable);
         //tu page sang list de map
-        List<UserInformResponse> dtoList = pageUser.getContent().stream()
-                .map(user -> new UserInformResponse(
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getEnabled(),
-                        user.getDeleted()
-                ))
-                .collect(Collectors.toList());
-
+        List<UserInformResponse> dtoList = pageUser.getContent().stream().map(user -> new UserInformResponse(user.getUsername(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getEnabled(), user.getDeleted(), user.getCreatedBy(), user.getCreatedDate(), user.getModifiedBy(), user.getModifiedDate())).collect(Collectors.toList());
         return new PageImpl<>(dtoList, pageable, pageUser.getTotalElements());
     }
 
@@ -192,13 +185,11 @@ public class UserServiceImplements implements UserService {
 
     @Override
     public CreateUserResponse updateRoleForUser(Long id, UserRoleRequest userRoleRequest) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Set<Role> newRoles = new HashSet<>();
         for (String roleName : userRoleRequest.getRoleName()) {
-            Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_REPOSITORY_EMPTY));
+            Role role = roleRepository.findByName(roleName).orElseThrow(() -> new AppException(ErrorCode.ROLE_REPOSITORY_EMPTY));
             newRoles.add(role);
         }
         user.setRoles(newRoles);
@@ -207,12 +198,10 @@ public class UserServiceImplements implements UserService {
 
     @Override
     public CreateUserResponse addRoleUser(Long id, UserRoleRequest userRoleRequest) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         for (String roleName : userRoleRequest.getRoleName()) {
-            Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_REPOSITORY_EMPTY));
+            Role role = roleRepository.findByName(roleName).orElseThrow(() -> new AppException(ErrorCode.ROLE_REPOSITORY_EMPTY));
             user.getRoles().add(role);
         }
         return userMapper.toCreateUserResponse(userRepository.save(user));

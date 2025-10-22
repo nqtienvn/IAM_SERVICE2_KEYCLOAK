@@ -14,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class AppConfig {
-
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
@@ -27,6 +26,4 @@ public class AppConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
-
 }

@@ -31,7 +31,7 @@ public class Log {
     private String requestParam;
     @Column(name = "request_payload",columnDefinition = "TEXT")
     private String requestPayload;
-    @Column(name = "response_payload",columnDefinition = "TEXT")
+    @Column(name = "response_payload",columnDefinition = "LONGTEXT")
     private String responsePayload;
     @CreatedDate
     @Column(name = "sent_at")

@@ -32,5 +32,6 @@ public class User extends Auditor{
     @Enumerated(EnumType.STRING)
     @ManyToMany(fetch = FetchType.EAGER)
     Set<Role> roles;
-
+    private String avatarPublicId;
+    private String avatarUrl;
 }

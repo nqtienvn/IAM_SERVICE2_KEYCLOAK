@@ -30,7 +30,7 @@ public class KeyCloakSecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/refresh-token",
                                 "/api/auth/admin-token").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/users", "/api/roles", "/api/permissions").permitAll()
+                        .requestMatchers("/public/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterAfter(customerAccessFilter, BearerTokenAuthenticationFilter.class)
                 .oauth2ResourceServer(oauth2 -> oauth2 //this application has role is Authorization server to verify jwt with a public key
