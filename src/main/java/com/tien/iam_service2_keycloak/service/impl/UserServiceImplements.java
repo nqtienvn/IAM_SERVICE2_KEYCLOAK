@@ -206,4 +206,9 @@ public class UserServiceImplements implements UserService {
         }
         return userMapper.toCreateUserResponse(userRepository.save(user));
     }
+
+    @Override
+    public List<User> filter(String firstName, String lastName) {
+        return userRepository.filter(firstName, lastName);
+    }
 }

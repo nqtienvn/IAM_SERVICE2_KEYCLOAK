@@ -3,6 +3,7 @@ package com.tien.iam_service2_keycloak.controller;
 import com.tien.iam_service2_keycloak.client.StorageServiceClient;
 import com.tien.iam_service2_keycloak.dto.request.FileFilterRequest;
 import com.tien.iam_service2_keycloak.dto.request.GetImageRequest;
+import com.tien.iam_service2_keycloak.dto.request.GetProfileRequest;
 import com.tien.iam_service2_keycloak.dto.request.UpdateFileRequest;
 import com.tien.iam_service2_keycloak.dto.response.ApiResponse;
 import com.tien.iam_service2_keycloak.dto.response.FileS2Response;
@@ -14,11 +15,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,9 +33,10 @@ import java.util.List;
 public class StorageController {
     private final StorageServiceClient storageServiceClient;
     private final UserRepository userRepository;
+
     //phan quuyen ben nay luon
     @Operation(summary = "upload file",
-    description = "upload file to cloudinary and manage in database")
+            description = "upload file to cloudinary and manage in database")
     @PostMapping()
     @PreAuthorize("hasAuthority('USER_UPLOAD_AVATAR')")
     ApiResponse<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("typeOfFile") String typeOfFile) {
@@ -39,11 +44,12 @@ public class StorageController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         ApiResponse<String> response = storageServiceClient.uploadFile(file, typeOfFile);
-        User user = userRepository.findByUsername(userName).orElseThrow(() ->  new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findByUsername(userName).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setAvatarUrl(response.getResult());
         userRepository.save(user);
         return response;
     }
+
     @Operation(summary = "upload multi File",
             description = "upload multi file and manage by cloudinary")
     @PreAuthorize("hasAuthority('FILE_UPLOAD_MULTI')")
@@ -51,6 +57,7 @@ public class StorageController {
     ApiResponse<List<String>> uploadMultiFile(@RequestParam("files") MultipartFile[] files, @RequestParam("typeOfFile") String typeOfFile) {
         return storageServiceClient.uploadMultiFile(files, typeOfFile);
     }
+
     @Operation(summary = "delete a File",
             description = "delete a file in cloudinary and my database")
     @PreAuthorize("hasAuthority('FILE_DELETE')")
@@ -58,6 +65,7 @@ public class StorageController {
     ApiResponse<String> deleteFile(@RequestParam String publicId) {
         return storageServiceClient.deleteFile(publicId);
     }
+
     @Operation(summary = "update a File",
             description = "update a file and manage by cloudinary")
     @PutMapping()
@@ -66,11 +74,12 @@ public class StorageController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         ApiResponse<String> response = storageServiceClient.updateFile(newFile, updateFileRequest);
-        User user = userRepository.findByUsername(userName).orElseThrow(() ->  new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findByUsername(userName).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setAvatarUrl(response.getResult());
         userRepository.save(user);
         return response;
     }
+
     @PreAuthorize("hasAuthority('FILE_VIEW')")
     @Operation(summary = "get a File",
             description = "get a file and manage by cloudinary with radio or width, height")
@@ -78,6 +87,27 @@ public class StorageController {
     ApiResponse<String> getFile(@ModelAttribute GetImageRequest getImageRequest) {
         return storageServiceClient.getFile(getImageRequest);
     }
+
+    //chua them vao permission
+    //user, admin, system admin
+    @PreAuthorize("hasAuthority('AVATAR_VIEW')")
+    @Operation(summary = "avatar File",
+            description = "avatar File description")
+    @GetMapping("/profile")
+    ResponseEntity<ApiResponse<?>> getMyProfile(@ModelAttribute GetProfileRequest getProfileRequest) {
+        try {
+            return storageServiceClient.getProfile(getProfileRequest);
+        } catch (ResponseStatusException ex) { //neu trả ve ma status loi
+            return ResponseEntity.status(ex.getStatusCode())
+                    .body(ApiResponse.builder()
+                            .code(ex.getStatusCode().value())
+                            .message(ex.getReason())
+                            .result(null)
+                            .build());
+        }
+    }
+
+    //admin, systemadmin
     @PreAuthorize("hasAuthority('FILE_FILTER')")
     @Operation(summary = "filter File",
             description = "filter file with filename, type, create date, modify date, owner")

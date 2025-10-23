@@ -3,6 +3,7 @@ package com.tien.iam_service2_keycloak.controller;
 import com.tien.iam_service2_keycloak.dto.response.ImportErrorResponse;
 import com.tien.iam_service2_keycloak.entity.User;
 import com.tien.iam_service2_keycloak.repository.UserRepository;
+import com.tien.iam_service2_keycloak.service.UserService;
 import com.tien.iam_service2_keycloak.service.impl.ExcelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -20,10 +21,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExcelController {
     private final ExcelService excelService;
-    private final UserRepository userRepository;
+    private final UserService userService;
     @GetMapping("/export")
-    public ResponseEntity<ByteArrayResource> exportToExcel() throws IOException {
-        List<User> users = userRepository.findAll();
+    public ResponseEntity<ByteArrayResource> exportToExcel(@RequestParam(name = "firstName", required = false) String firstName,
+                                                           @RequestParam(name = "lastName", required = false) String lastName) throws IOException {
+        List<User> users = userService.filter(firstName, lastName);
         // Gọi service để tạo file Excel
         byte[] excelData = excelService.exportUsersToExcel(users);
         // Tạo resource từ mảng byte

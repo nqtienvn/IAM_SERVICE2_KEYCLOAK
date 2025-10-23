@@ -1,11 +1,14 @@
 package com.tien.iam_service2_keycloak.dto.response;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class ApiResponse <T> {

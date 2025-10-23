@@ -1,12 +1,15 @@
 package com.tien.iam_service2_keycloak.service.impl;
 
+import com.tien.iam_service2_keycloak.dto.request.CreateUserRequest;
 import com.tien.iam_service2_keycloak.dto.response.ImportErrorResponse;
 import com.tien.iam_service2_keycloak.entity.User;
 import com.tien.iam_service2_keycloak.repository.UserRepository;
+import com.tien.iam_service2_keycloak.service.KeycloakService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +24,9 @@ import java.util.List;
 @Slf4j(topic = "EXCEL_SERVICE_ANH_TIEN")
 public class ExcelService {
     private final UserRepository userRepository;
-
+    private final KeycloakService keycloakService;
+    private final PasswordEncoder passwordEncoder;
+//đây là xuất file ra toàn bộ thông tin
     public byte[] exportUsersToExcel(List<User> users) throws IOException {
         //tạo một workbook đại diện cho một file Excel
         Workbook workbook = new XSSFWorkbook(); //cai nay la tao file.xlsx cho excel, dung cho excel tu 2007 den hien tai
@@ -128,8 +133,6 @@ public class ExcelService {
                 if (lastName == null || lastName.trim().isEmpty()) {
                     rowErrors.add("Last Name is required");
                 }
-                // Nếu dòng này có lỗi -> thêm tất cả lỗi vào List errors
-                //gop het thanh mot chuoi phan thach bang dau ;
                 if (!rowErrors.isEmpty()) {
                     errors.add(new ImportErrorResponse(i + 1, "Row", String.join("; ", rowErrors)));
                     continue;
@@ -140,9 +143,17 @@ public class ExcelService {
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
                 user.setAvatarUrl(avatar_url);
+                user.setPass(passwordEncoder.encode("123"));
                 user.setEnabled(true);
                 user.setDeleted(false);
                 userRepository.save(user);
+                CreateUserRequest createUserRequest = new CreateUserRequest();
+                createUserRequest.setUsername(username);
+                createUserRequest.setEmail(email);
+                createUserRequest.setFirstName(firstName);
+                createUserRequest.setLastName(lastName);
+                createUserRequest.setPass("123");
+                keycloakService.createUser(createUserRequest);
             }
         }
         return errors;
@@ -170,5 +181,6 @@ public class ExcelService {
         }
         return true;
     }
-
+//bây giờ ta cần xuất theo file theo điều kiện, như là tim được list user nào đó rồi xuất ra
+    //nói chung là giờ chỉ cần timf được một list đã filter rồi xuất ra là được
 }

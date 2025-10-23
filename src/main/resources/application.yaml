@@ -2,7 +2,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 49681
+      port: 62353
   datasource:
     url: jdbc:mysql://localhost:3306/iam_keycloak
     username: root

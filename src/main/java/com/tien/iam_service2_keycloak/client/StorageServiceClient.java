@@ -3,6 +3,7 @@ package com.tien.iam_service2_keycloak.client;
 import com.tien.iam_service2_keycloak.config.FeignClientConfig;
 import com.tien.iam_service2_keycloak.dto.request.FileFilterRequest;
 import com.tien.iam_service2_keycloak.dto.request.GetImageRequest;
+import com.tien.iam_service2_keycloak.dto.request.GetProfileRequest;
 import com.tien.iam_service2_keycloak.dto.request.UpdateFileRequest;
 import com.tien.iam_service2_keycloak.dto.response.ApiResponse;
 import com.tien.iam_service2_keycloak.dto.response.FileS2Response;
@@ -10,6 +11,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,4 +39,6 @@ public interface StorageServiceClient {
     @GetMapping(value = "/api/cloudinary/filter")
     ApiResponse<Page<FileS2Response>> filter(@SpringQueryMap FileFilterRequest filterRequest);
 
+    @GetMapping(value = "/api/cloudinary/profile")
+    ResponseEntity<ApiResponse<?>> getProfile(@SpringQueryMap GetProfileRequest getProfileRequest);
 }
