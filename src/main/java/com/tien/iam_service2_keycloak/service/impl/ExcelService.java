@@ -1,7 +1,10 @@
 package com.tien.iam_service2_keycloak.service.impl;
 
+import com.tien.iam_service2_keycloak.dto.response.ImportErrorResponse;
 import com.tien.iam_service2_keycloak.entity.User;
 import com.tien.iam_service2_keycloak.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -11,16 +14,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j(topic = "EXCEL_SERVICE_ANH_TIEN")
 public class ExcelService {
     private final UserRepository userRepository;
-
-    public ExcelService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public byte[] exportUsersToExcel(List<User> users) throws IOException {
         //tạo một workbook đại diện cho một file Excel
@@ -82,127 +82,93 @@ public class ExcelService {
         for (int i = 0; i < columns.length; i++) {
             sheet.autoSizeColumn(i);
         }
-
         // chuyen work book thanh mang byte va tra ve
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
         workbook.close();
         return outputStream.toByteArray();
     }
-    public List<User> importStudentsFromExcel(MultipartFile file) throws IOException {
-        List<User> users = new ArrayList<>();
 
-        //doc du lieu tu file
-        InputStream inputStream = file.getInputStream();
+    public List<ImportErrorResponse> importUsersFromExcel(MultipartFile file) throws IOException {
+        List<ImportErrorResponse> errors = new ArrayList<>();
 
-        //Tạo Workbook từ InputStream
-        Workbook workbook = new XSSFWorkbook(inputStream);
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(inputStream)) {
 
-        //Lấy sheet đầu tiên (index 0)
-        Sheet sheet = workbook.getSheetAt(0);
+            Sheet sheet = workbook.getSheetAt(0); //lay trang sheet dau tien
+            int numberOfRows = sheet.getLastRowNum();
 
-        //Lấy Iterator để duyệt qua các dòng
-        Iterator<Row> rowIterator = sheet.iterator();
+            for (int i = 1; i <= numberOfRows; i++) { // Bỏ dòng header, bắt đầu từ index 1
+                Row row = sheet.getRow(i);
+                if (isRowEmpty(row)) {
+                    log.debug("Empty is row: {}", i);
+                    continue;
+                }
+                List<String> rowErrors = new ArrayList<>();
+                String username = getStringCellValue(row.getCell(1));
+                String email = getStringCellValue(row.getCell(2));
+                String firstName = getStringCellValue(row.getCell(3));
+                String lastName = getStringCellValue(row.getCell(4));
+                String avatar_url = getStringCellValue(row.getCell(5));
 
-        //Bỏ qua dòng header (dòng đầu tiên)
-        if (rowIterator.hasNext()) {
-            rowIterator.next(); // Skip header row
+
+                if (username == null || username.trim().isEmpty()) {
+                    rowErrors.add("Username is required");
+                } else if (userRepository.existsByUsername(username)) {
+                    rowErrors.add("Username already exists in system");
+                }
+                if (email == null || email.trim().isEmpty()) {
+                    rowErrors.add("Email is required");
+                } else if (userRepository.existsByEmail(email)) {
+                    rowErrors.add("Email already exists in system");
+                }
+                if (firstName == null || firstName.trim().isEmpty()) {
+                    rowErrors.add("First Name is required");
+                }
+                if (lastName == null || lastName.trim().isEmpty()) {
+                    rowErrors.add("Last Name is required");
+                }
+                // Nếu dòng này có lỗi -> thêm tất cả lỗi vào List errors
+                //gop het thanh mot chuoi phan thach bang dau ;
+                if (!rowErrors.isEmpty()) {
+                    errors.add(new ImportErrorResponse(i + 1, "Row", String.join("; ", rowErrors)));
+                    continue;
+                }
+                User user = new User();
+                user.setUsername(username);
+                user.setEmail(email);
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+                user.setAvatarUrl(avatar_url);
+                user.setEnabled(true);
+                user.setDeleted(false);
+                userRepository.save(user);
+            }
         }
-
-        // Duyệt qua các dòng còn lại
-        while (rowIterator.hasNext()) {
-            Row row = rowIterator.next();
-            if (isRowEmpty(row)) {
-                continue;
-            }
-            User user = new User();
-//            Cell cell0 = row.getCell(0);
-//            if (cell0 != null) {
-//                user.setId((long) getNumericCellValue(cell0));
-//            }
-            Cell cell1 = row.getCell(1);
-            if (cell1 != null) {
-                user.setUsername(getStringCellValue(cell1));
-            }
-            Cell cell2 = row.getCell(2);
-            if (cell2 != null) {
-                user.setEmail(getStringCellValue(cell2));
-            }
-            Cell cell3 = row.getCell(3);
-            if (cell3 != null) {
-                user.setFirstName(getStringCellValue(cell3));
-            }
-            Cell cell4 = row.getCell(4);
-            if (cell4 != null) {
-                user.setLastName(getStringCellValue(cell4));
-            }
-            Cell cell5 = row.getCell(5);
-            if (cell5 != null) {
-                user.setAvatarUrl(getStringCellValue(cell5));
-            }
-            user.setEnabled(true);
-            user.setDeleted(false);
-            userRepository.save(user);
-            users.add(user);
-        }
-        workbook.close();
-        return users;
+        return errors;
     }
 
-    // Phương thức helper: Lấy giá trị string từ cell
     private String getStringCellValue(Cell cell) {
-        if (cell == null) {
-            return "";
-        }
-
-        // Xử lý theo kiểu dữ liệu của cell
+        if (cell == null) return "";
         switch (cell.getCellType()) {
             case STRING:
-                return cell.getStringCellValue();
+                return cell.getStringCellValue().trim();
             case NUMERIC:
-                // Nếu là số, chuyển thành string
                 return String.valueOf((long) cell.getNumericCellValue());
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
             default:
                 return "";
         }
     }
 
-    // Phương thức helper: Lấy giá trị số từ cell
-    private double getNumericCellValue(Cell cell) {
-        if (cell == null) {
-            return 0;
-        }
-
-        switch (cell.getCellType()) {
-            case NUMERIC:
-                return cell.getNumericCellValue();
-            case STRING:
-                try {
-                    return Double.parseDouble(cell.getStringCellValue());
-                } catch (NumberFormatException e) {
-                    return 0;
-                }
-            default:
-                return 0;
-        }
-    }
-
-    // Phương thức helper: Kiểm tra dòng có rỗng không
     private boolean isRowEmpty(Row row) {
-        if (row == null) {
-            return true;
-        }
-
+        if (row == null) return true;
         for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
             Cell cell = row.getCell(i);
-            if (cell != null && cell.getCellType() != CellType.BLANK) {
+            if (cell != null && cell.getCellType() != CellType.BLANK && !getStringCellValue(cell).isEmpty()) {
                 return false;
             }
         }
         return true;
     }
+
 }

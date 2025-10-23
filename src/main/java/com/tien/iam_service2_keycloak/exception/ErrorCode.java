@@ -15,6 +15,7 @@ public enum ErrorCode {
      * key cloak: 1
      * crud user error: 9
      * DB: 5
+     * excel: 7
      */
     ERROR_DELETE(9, "user has bean deleted",HttpStatus.BAD_REQUEST),
     ERROR_KEYCLOAK_USER(1, "create user in keycloak fail", HttpStatus.BAD_REQUEST),
@@ -36,6 +37,7 @@ public enum ErrorCode {
     EXPIRED_TOKEN(6, "TOKEN IS EXPIRED", HttpStatus.BAD_REQUEST),
     UNVERIFY_TOKEN(6, "TOKEN IS NOT VERIFY", HttpStatus.BAD_REQUEST),
     ERROR_UPLOAD_FILE(7, "ERROR UPLOAD FILE", HttpStatus.INTERNAL_SERVER_ERROR),
+    ERROR_EXCEL_HEADER(7, "not have header in excel file", HttpStatus.BAD_REQUEST),
     NOT_MATCH_PASSWORD(0, "OLD PASS AND NEW PASS NOT MATCH", HttpStatus.BAD_REQUEST);
     ;
       int code;
