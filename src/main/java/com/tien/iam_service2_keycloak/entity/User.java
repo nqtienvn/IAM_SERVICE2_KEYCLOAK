@@ -34,4 +34,6 @@ public class User extends Auditor{
     Set<Role> roles;
     private String avatarPublicId;
     private String avatarUrl;
+
+
 }
