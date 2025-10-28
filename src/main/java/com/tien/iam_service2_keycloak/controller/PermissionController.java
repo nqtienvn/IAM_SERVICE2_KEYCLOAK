@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PermissionController {
     PermissionService permissionService;
-    //chi cho thang super admin tao
+
     @PostMapping()
     @PreAuthorize("hasAuthority('PERMISSION_CREATE')")
     public ApiResponse<PermissionResponse> createPermission(@RequestBody PermissionRequest permissionRequest) {

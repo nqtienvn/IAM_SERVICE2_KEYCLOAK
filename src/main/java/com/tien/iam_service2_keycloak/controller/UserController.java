@@ -20,8 +20,9 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "User Controller", description = "manage user")
 public class UserController {
     private final UserService userService;
+
     @Operation(summary = "register new user",
-    description = "API create new user") //thong tin endpoint do
+            description = "API create new user") //thong tin endpoint do
     @PostMapping()
     public ApiResponse<CreateUserResponse> createUser(@RequestBody CreateUserRequest createUserRequest) {
         return ApiResponse.<CreateUserResponse>builder()
@@ -30,6 +31,7 @@ public class UserController {
                 .result(userService.createUser(createUserRequest))
                 .build();
     }
+
     @Operation(summary = "update user",
             description = "API update user")
     @PutMapping("/{userId}")
@@ -41,6 +43,7 @@ public class UserController {
                 .result(userService.updateUser(updateRequest, userId))
                 .build();
     }
+
     @Operation(summary = "soft delete user",
             description = "API to soft delete user")
     @DeleteMapping("/{userId}")
@@ -52,6 +55,7 @@ public class UserController {
                 .result(userService.deleteUser(userId))
                 .build();
     }
+
     @Operation(summary = "get all user",
             description = "API to get all user")
     @GetMapping()
@@ -62,6 +66,7 @@ public class UserController {
     ) {
         return userService.getAllUsers(page, size);
     }
+
     @Operation(summary = "block user",
             description = "API to block user")
     @PostMapping("/lock/{userId}")
@@ -73,6 +78,7 @@ public class UserController {
                 .result(userService.blockUser(userId))
                 .build();
     }
+
     @Operation(summary = "un block user",
             description = "API to unblock user")
     @PostMapping("/un-lock/{userId}")
@@ -84,6 +90,7 @@ public class UserController {
                 .result(userService.unBlockUser(userId))
                 .build();
     }
+
     @Operation(summary = "view profile of user",
             description = "API to view profile of user")
     @GetMapping("/{userId}")
@@ -95,6 +102,7 @@ public class UserController {
                 .result(userService.userDetail(userId))
                 .build();
     }
+
     @Operation(summary = "update role user",
             description = "API update role of user")
     @PutMapping("/roles/{id}")
@@ -106,6 +114,7 @@ public class UserController {
                 .result(userService.updateRoleForUser(id, userRoleRequest))
                 .build();
     }
+
     @Operation(summary = "add more role user",
             description = "API to add role of user")
     @PostMapping("/roles/{id}")

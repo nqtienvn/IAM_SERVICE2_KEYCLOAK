@@ -13,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class User extends Auditor{
+public class User extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,6 +34,5 @@ public class User extends Auditor{
     Set<Role> roles;
     private String avatarPublicId;
     private String avatarUrl;
-
 
 }

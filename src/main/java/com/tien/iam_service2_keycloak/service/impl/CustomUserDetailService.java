@@ -20,7 +20,7 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     //hàm thể hiện là dùng thằng UserDetailsService để lấy từ db và trả về thăng UserDetail đó
     public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-        User user =  userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return new CustomUserDetails(user);
     }
 }

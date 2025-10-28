@@ -26,6 +26,6 @@ public class UserInformResponse {
     boolean deleted;
     String createdBy;
     Instant createdDate;
-     String modifiedBy;
-     Instant modifiedDate;
+    String modifiedBy;
+    Instant modifiedDate;
 }

@@ -8,7 +8,6 @@ import com.tien.iam_service2_keycloak.dto.response.RoleResponse;
 import org.springframework.data.domain.Page;
 
 
-
 public interface PermissionService {
     PermissionResponse createPermission(PermissionRequest permissionRequest);
 
@@ -17,5 +16,6 @@ public interface PermissionService {
     void deletePermission(Long id);
 
     RoleResponse addPermissionsForRole(Long id, AddPermissionForRoleRequest addPermissionForRoleRequest);
+
     RoleResponse updatePermissionForRole(Long id, AddPermissionForRoleRequest addPermissionForRoleRequest);
 }

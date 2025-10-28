@@ -31,6 +31,7 @@ public class JwtServiceImpl implements JwtService {
     JwtProperties jwtProperties;
     CustomUserDetailService customerUserDetailService;
     BaseRedisV2Service baseRedisV2Service;
+
     public Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);

@@ -38,7 +38,7 @@ public class RoleServiceImpl implements RoleService {
     public RoleResponse createRole(RoleRequest roleRequest) {
         Role role = roleMapper.toRole(roleRequest);
         Set<String> permissionName = roleRequest.getPermissionsName();
-        if(permissionName == null) {
+        if (permissionName == null) {
             throw new AppException(ErrorCode.PERMISSION_REPOSITORY_EMPTY);
         }
         Set<Permission> permissions = new HashSet<>();
@@ -58,9 +58,9 @@ public class RoleServiceImpl implements RoleService {
     public void deleteRole(Long id) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ROLE_REPOSITORY_EMPTY));
         // Gỡ khỏi users
-        for(User user: userRepository.findAll()) {
+        for (User user : userRepository.findAll()) {
             user.getRoles().remove(role);
-            if(user.getRoles() == null) {
+            if (user.getRoles() == null) {
                 Set<Role> roles = new HashSet<>();
                 roles.add(roleRepository.findByName(Role_System.USER.toString()).orElseThrow());
                 user.setRoles(roles);

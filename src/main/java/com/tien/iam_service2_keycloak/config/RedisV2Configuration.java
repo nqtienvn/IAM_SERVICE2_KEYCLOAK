@@ -19,6 +19,7 @@ public class RedisV2Configuration {
     JedisConnectionFactory jedisConnectionFactory() {
         return new JedisConnectionFactory(new RedisStandaloneConfiguration(redisProperties.getHost(), redisProperties.getPort()));
     }
+
     @Bean
         //config thao tac tu code xuong redis
     RedisTemplate<String, Object> redisTemplate() {
@@ -29,6 +30,7 @@ public class RedisV2Configuration {
         redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
         return redisTemplate;
     }
+
     @Bean
     HashOperations<String, String, Object> hashOperations(RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForHash();

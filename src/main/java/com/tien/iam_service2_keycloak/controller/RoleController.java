@@ -44,6 +44,7 @@ public class RoleController {
                 .result(roleService.listRole(page, size))
                 .build();
     }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_DELETE')")
     public ApiResponse<String> delete(@PathVariable Long id) {
@@ -63,6 +64,7 @@ public class RoleController {
                 .result(permissionService.updatePermissionForRole(id, addPermissionForRoleRequest))
                 .build();
     }
+
     @PostMapping("/permissions/{id}")
     @PreAuthorize("hasAuthority('ROLE_PERMISSION_ADD')")
     public ApiResponse<RoleResponse> addRole(@RequestBody AddPermissionForRoleRequest addPermissionForRoleRequest, @PathVariable(name = "id") Long id) {

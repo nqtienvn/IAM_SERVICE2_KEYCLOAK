@@ -12,13 +12,22 @@ import java.util.List;
 
 public interface UserService {
     CreateUserResponse createUser(CreateUserRequest createUserRequest);
+
     CreateUserResponse updateUser(UpdateRequest updateRequest, Long userId);
+
     Boolean deleteUser(Long userId);
+
     Boolean blockUser(Long userId);
+
     Boolean unBlockUser(Long userId);
+
     Page<UserInformResponse> getAllUsers(int page, int size);
+
     CreateUserResponse userDetail(Long userId);
+
     CreateUserResponse updateRoleForUser(Long id, UserRoleRequest userRoleRequest);
+
     CreateUserResponse addRoleUser(Long id, UserRoleRequest userRoleRequest);
+
     List<User> filter(String firstName, String lastName);
 }

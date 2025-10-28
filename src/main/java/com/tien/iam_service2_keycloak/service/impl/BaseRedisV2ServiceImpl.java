@@ -25,7 +25,6 @@ public class BaseRedisV2ServiceImpl implements BaseRedisV2Service {
     }
 
 
-
     //set thoi gian song
     @Override
     public void setTimeToLive(String key, long timeoutInDays) {

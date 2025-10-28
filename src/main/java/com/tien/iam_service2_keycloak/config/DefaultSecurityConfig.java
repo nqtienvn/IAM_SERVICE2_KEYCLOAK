@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,7 +30,8 @@ public class DefaultSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
+        http    .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
 //                        .requestMatchers(HttpMethod.POST, "/api/users", "/auth/login", "auth/refresh-token", "auth/forgot-password", "auth/confirm-password", "/api/users/avatar").permitAll()
 //                        .requestMatchers(HttpMethod.GET, "/upload", "/send-mail", "redis/**").permitAll()
                         .requestMatchers("/api/auth/register",

@@ -187,7 +187,7 @@ public class KeyCloakServiceImplements implements KeycloakService {
         dataRequest.put("firstName", updateRequest.getFirstName());
         dataRequest.put("lastName", updateRequest.getLastName());
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(dataRequest, header);
-         restTemplate.put(url, request, String.class);
+        restTemplate.put(url, request, String.class);
     }
 
     @Override
