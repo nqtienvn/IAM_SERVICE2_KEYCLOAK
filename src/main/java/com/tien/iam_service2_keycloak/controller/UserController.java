@@ -1,9 +1,9 @@
 package com.tien.iam_service2_keycloak.controller;
 
+import com.tien.common.dto.response.ApiResponse;
 import com.tien.iam_service2_keycloak.dto.request.CreateUserRequest;
 import com.tien.iam_service2_keycloak.dto.request.UpdateRequest;
 import com.tien.iam_service2_keycloak.dto.request.UserRoleRequest;
-import com.tien.iam_service2_keycloak.dto.response.ApiResponse;
 import com.tien.iam_service2_keycloak.dto.response.CreateUserResponse;
 import com.tien.iam_service2_keycloak.dto.response.UserInformResponse;
 import com.tien.iam_service2_keycloak.service.UserService;

@@ -1,9 +1,9 @@
 package com.tien.iam_service2_keycloak.service.impl;
 
 
+import com.tien.common.exception.AppException;
+import com.tien.common.exception.ErrorCode;
 import com.tien.iam_service2_keycloak.config.JwtProperties;
-import com.tien.iam_service2_keycloak.exception.AppException;
-import com.tien.iam_service2_keycloak.exception.ErrorCode;
 import com.tien.iam_service2_keycloak.service.BaseRedisV2Service;
 import com.tien.iam_service2_keycloak.service.JwtService;
 import io.jsonwebtoken.*;

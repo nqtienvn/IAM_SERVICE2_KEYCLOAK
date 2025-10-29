@@ -1,7 +1,7 @@
 package com.tien.iam_service2_keycloak.controller;
 
+import com.tien.common.dto.response.ApiResponse;
 import com.tien.iam_service2_keycloak.dto.request.AuthenticationRequest;
-import com.tien.iam_service2_keycloak.dto.response.ApiResponse;
 import com.tien.iam_service2_keycloak.dto.response.AuthenticationResponse;
 import com.tien.iam_service2_keycloak.service.impl.TurnOnKeycloak;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class AuthenticationController {
     public ApiResponse<String> getAdminToken() {
         return ApiResponse.<String>builder()
                 .code(200)
-                .message("Refresh Successfully!")
+                .message("get admin token Successfully!")
                 .result(turnOnKeycloak.getAdminToken())
                 .build();
     }

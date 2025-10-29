@@ -1,6 +1,6 @@
 package com.tien.iam_service2_keycloak.config;
 
-import com.tien.iam_service2_keycloak.entity.Log;
+import com.tien.common.entity.Log;
 import com.tien.iam_service2_keycloak.repository.LogRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

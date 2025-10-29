@@ -4,7 +4,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 54030
+      port: 51672
   datasource:
     url: jdbc:mysql://localhost:3306/iam_keycloak
     username: root
@@ -64,6 +64,8 @@ jwt:
 open:
   api:
     title: "KEYCLOAK_IAM_SERVICE"
+    scanPackage: "com.tien.iam_service2_keycloak.controller"
+    group: "iam_service"
     version: "v1.0.0"
     description: "manage with keycloak"
     url: "http://localhost:8081"

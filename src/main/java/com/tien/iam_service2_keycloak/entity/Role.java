@@ -1,5 +1,6 @@
 package com.tien.iam_service2_keycloak.entity;
 
+import com.tien.common.entity.Auditor;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import java.util.Set;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
-public class Role extends Auditor{
+public class Role extends Auditor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;

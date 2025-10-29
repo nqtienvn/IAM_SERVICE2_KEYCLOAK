@@ -1,12 +1,12 @@
 package com.tien.iam_service2_keycloak.service.impl;
 
-import com.tien.iam_service2_keycloak.client.StorageServiceClient;
-import com.tien.iam_service2_keycloak.dto.request.UpdateFileRequest;
-import com.tien.iam_service2_keycloak.dto.request.UploadFileRequest;
-import com.tien.iam_service2_keycloak.dto.response.ApiResponse;
+import com.tien.common.client.storage.StorageServiceClient;
+import com.tien.common.dto.request.UpdateFileRequest;
+import com.tien.common.dto.request.UploadFileRequest;
+import com.tien.common.dto.response.ApiResponse;
+import com.tien.common.exception.AppException;
+import com.tien.common.exception.ErrorCode;
 import com.tien.iam_service2_keycloak.entity.User;
-import com.tien.iam_service2_keycloak.exception.AppException;
-import com.tien.iam_service2_keycloak.exception.ErrorCode;
 import com.tien.iam_service2_keycloak.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

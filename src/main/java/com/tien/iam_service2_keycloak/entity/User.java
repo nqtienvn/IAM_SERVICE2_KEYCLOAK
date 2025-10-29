@@ -1,5 +1,6 @@
 package com.tien.iam_service2_keycloak.entity;
 
+import com.tien.common.entity.Auditor;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

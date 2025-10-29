@@ -1,11 +1,11 @@
 package com.tien.iam_service2_keycloak.config;
 
 
+import com.tien.common.exception.AppException;
+import com.tien.common.exception.ErrorCode;
 import com.tien.iam_service2_keycloak.entity.Permission;
 import com.tien.iam_service2_keycloak.entity.Role;
 import com.tien.iam_service2_keycloak.entity.User;
-import com.tien.iam_service2_keycloak.exception.AppException;
-import com.tien.iam_service2_keycloak.exception.ErrorCode;
 import com.tien.iam_service2_keycloak.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;

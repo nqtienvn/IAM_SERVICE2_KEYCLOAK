@@ -1,9 +1,9 @@
 package com.tien.iam_service2_keycloak.controller;
 
-import com.tien.iam_service2_keycloak.client.StorageServiceClient;
-import com.tien.iam_service2_keycloak.dto.request.*;
-import com.tien.iam_service2_keycloak.dto.response.ApiResponse;
-import com.tien.iam_service2_keycloak.dto.response.FileS2Response;
+import com.tien.common.client.storage.StorageServiceClient;
+import com.tien.common.dto.request.*;
+import com.tien.common.dto.response.ApiResponse;
+import com.tien.common.dto.response.FileS2Response;
 import com.tien.iam_service2_keycloak.service.impl.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +21,6 @@ import java.util.List;
 public class StorageController {
     private final StorageService storageService;
     private final StorageServiceClient storageServiceClient;
-
     @Operation(summary = "upload file", description = "upload file to cloudinary and manage in database")
     @PostMapping()
     @PreAuthorize("hasAuthority('USER_UPLOAD_AVATAR')")

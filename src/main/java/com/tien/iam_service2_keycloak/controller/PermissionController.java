@@ -1,8 +1,8 @@
 package com.tien.iam_service2_keycloak.controller;
 
 
+import com.tien.common.dto.response.ApiResponse;
 import com.tien.iam_service2_keycloak.dto.request.PermissionRequest;
-import com.tien.iam_service2_keycloak.dto.response.ApiResponse;
 import com.tien.iam_service2_keycloak.dto.response.PermissionResponse;
 import com.tien.iam_service2_keycloak.service.PermissionService;
 import lombok.AccessLevel;
